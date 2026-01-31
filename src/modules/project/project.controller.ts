@@ -59,8 +59,10 @@ export class ProjectController {
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateProjectTechDto,
   ) {
-  await this.projectTechService.removeByProject(id);
-  return this.projectTechService.addTechsToProject(id, dto.techIds);
+    return this.projectTechService.updateProjectTechs(
+      id,
+      dto.techIds,
+    );
 }
 
 

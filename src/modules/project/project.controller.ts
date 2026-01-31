@@ -55,16 +55,15 @@ export class ProjectController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
   @Put(':id/techs')
-  async updateProjectTechs(
-    @Param('id', ParseIntPipe) id: number,
+  updateProjectTechs(
+    @Param('id') projectId: number,
     @Body() dto: UpdateProjectTechDto,
   ) {
     return this.projectTechService.updateProjectTechs(
-      id,
-      dto.techIds,
+      projectId,
+      dto.techSlugs,
     );
-}
-
+  }
 
   // 🔐 관리자만 삭제
   @UseGuards(JwtAuthGuard, RolesGuard)

@@ -1,3 +1,3 @@
 export class UpdateProjectTechDto {
-    techIds: number[];
-}
+    techSlugs: string[];
+  }

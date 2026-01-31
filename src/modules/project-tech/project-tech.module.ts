@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProjectTech } from './project-tech.entity';
 import { ProjectModule } from '../project/project.module';
 import { TechModule } from '../tech/tech.module';
+import { ProjectTechService } from './project-tech.service';
 
 @Module({
   imports: [
@@ -11,7 +12,8 @@ import { TechModule } from '../tech/tech.module';
     TechModule,
   ],
   exports: [
-    TypeOrmModule,
+    ProjectTechService,
   ],
+  providers: [ProjectTechService],
 })
 export class ProjectTechModule {}

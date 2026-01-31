@@ -19,16 +19,16 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('해당 아이디가 없습니다.');
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('비밀번호가 일치하지 않습니다.');
     }
 
     const payload = {
-      user_id: user.user_id,
+      sub: user.user_id,
       role: user.role,
     };
 

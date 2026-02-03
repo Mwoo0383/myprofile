@@ -1,10 +1,8 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { ProjectTech } from './project-tech.entity';
-import { In, Repository } from 'typeorm';
-import { DataSource } from 'typeorm/browser';
 import { Project } from '../project/project.entity';
 import { Tech } from '../tech/tech.entity';
+import { DataSource } from 'typeorm';
 
 @Injectable()
 export class ProjectTechService {
@@ -28,11 +26,11 @@ export class ProjectTechService {
       }
 
       // 2️⃣ slug로 tech 조회
-      const techs = await manager.find(Tech, {
-        where: {
-          slug: In(techSlugs),
-        },
-      });
+      const techs = await manager
+        .createQueryBuilder<Tech>(Tech, 'tech')
+        .where('tech.slug IN (:...techSlugs)', { techSlugs: techSlugs })
+        .getMany();
+
 
       if (techs.length !== techSlugs.length) {
         throw new BadRequestException('Invalid tech slug included');

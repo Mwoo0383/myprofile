@@ -16,44 +16,28 @@ export class ProjectService {
   // 전체 조회
   async findAll(): Promise<ProjectResponseDto[]> {
     const projects = await this.projectRepository.find({
-        relations: ['projectTechs', 'projectTechs.tech'],
+      relations: ['projectTechs', 'projectTechs.tech'],
+      order: { createdAt: 'DESC' },
     });
-
-    if(JSON.stringify(projects) === JSON.stringify([])) {
-        throw new NotFoundException("프로젝트가 없습니다.")
-    }
-
-    return projects.map((p) => ({
-      project_id: p.project_id,
-      title: p.title,
-      description: p.description,
-      githubUrl: p.githubUrl,
-      deployUrl: p.deployUrl,
-      techs: p.projectTechs.map((pt) => pt.tech.name),
-    }));
+  
+    return projects.map((project) =>
+      this.toResponseDto(project),
+    );
   }
+  
 
   // 단일 조회
-  async findOne(projectId: number) {
+  async findOne(id: number): Promise<ProjectResponseDto> {
     const project = await this.projectRepository.findOne({
-      where: { project_id: projectId },
-      relations: ['projectTechs','projectTechs.tech'],
+      where: { project_id: id },
+      relations: ['projectTechs', 'projectTechs.tech'],
     });
   
     if (!project) {
-      throw new NotFoundException('해당 프로젝트가 없습니다.');
+      throw new NotFoundException('Project not found');
     }
   
-    return {
-      project_id: project.project_id,
-      title: project.title,
-      description: project.description,
-      githubUrl: project.githubUrl,
-      deployUrl: project.deployUrl,
-      startDate: project.startDate,
-      endDate: project.endDate,
-      techs: project.projectTechs.map((pt) => pt.tech.name),
-    };
+    return this.toResponseDto(project);
   }
 
   // 생성
@@ -96,5 +80,20 @@ export class ProjectService {
 
     await this.projectRepository.remove(project);
     return { message: 'Project deleted successfully' };
+  }
+
+  private toResponseDto(project: Project): ProjectResponseDto {
+    return {
+      id: project.project_id,
+      title: project.title,
+      description: project.description,
+      githubUrl: project.githubUrl,
+      deployUrl: project.deployUrl,
+      startDate: project.startDate,
+      endDate: project.endDate,
+      techs: project.projectTechs.map(
+        (pt) => pt.tech.name,
+      ),
+    };
   }
 }

@@ -5,12 +5,20 @@ import { Repository } from 'typeorm';
 import { ProjectResponseDto } from './dto/project-response.dto';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { ProjectTech } from '../project-tech/project-tech.entity';
+import { Tech } from '../tech/tech.entity';
 
 @Injectable()
 export class ProjectService {
   constructor(
     @InjectRepository(Project)
-    private readonly projectRepository: Repository<Project>,
+  private readonly projectRepository: Repository<Project>,
+
+  @InjectRepository(ProjectTech)
+  private readonly projectTechRepository: Repository<ProjectTech>,
+
+  @InjectRepository(Tech)
+  private readonly techRepository: Repository<Tech>,
   ) {}
 
   // 전체 조회
@@ -42,31 +50,66 @@ export class ProjectService {
 
   // 생성
   async create(dto: CreateProjectDto, userId: number) {
+    const { techIds, ...projectData } = dto;
     const project = this.projectRepository.create({
-      ...dto,
+      ...projectData,
       user: { user_id: userId },
     });
 
     await this.projectRepository.save(project);
-    return project;
+
+    // 🔥 tech 연결
+    if (techIds && techIds.length > 0) {
+      const techs = await this.techRepository.findByIds(techIds);
+
+      const projectTechs = techs.map((tech) =>
+        this.projectTechRepository.create({
+          project,
+          tech,
+        }),
+      );
+      await this.projectTechRepository.save(projectTechs);
+    }
+    return this.findOne(project.project_id);
   }
 
-  // 수정
-  async update(
-    projectId: number,
-    dto: UpdateProjectDto,
-  ) {
+  async update(projectId: number, dto: UpdateProjectDto) {
     const project = await this.projectRepository.findOne({
       where: { project_id: projectId },
+      relations: ['projectTechs'],
     });
-
+  
     if (!project) {
       throw new NotFoundException('수정할 프로젝트가 없습니다.');
     }
-
-    Object.assign(project, dto);
-    return this.projectRepository.save(project);
-  }
+  
+    const { techIds, ...updateData } = dto;
+  
+    Object.assign(project, updateData);
+    await this.projectRepository.save(project);
+  
+    // 🔥 tech 교체 로직
+    if (techIds) {
+      // 기존 연결 삭제
+      await this.projectTechRepository.delete({
+        project: { project_id: projectId },
+      });
+  
+      // 새로 생성
+      const techs = await this.techRepository.findByIds(techIds);
+  
+      const newProjectTechs = techs.map((tech) =>
+        this.projectTechRepository.create({
+          project,
+          tech,
+        }),
+      );
+  
+      await this.projectTechRepository.save(newProjectTechs);
+    }
+  
+    return this.findOne(projectId);
+  }  
 
   // 삭제
   async remove(projectId: number) {

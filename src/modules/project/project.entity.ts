@@ -10,7 +10,6 @@ import {
   } from 'typeorm';
   import { User } from '../user/user.entity';
   import { ProjectTech } from '../project-tech/project-tech.entity';
-import { ProjectResponseDto } from './dto/project-response.dto';
   
   @Entity('project')
   export class Project {

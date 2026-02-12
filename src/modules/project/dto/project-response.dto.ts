@@ -9,5 +9,6 @@ export class ProjectResponseDto {
   techs: {
     tech_id: number;
     name: string;
+    slug: string;
   }[];
 }

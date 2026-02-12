@@ -137,6 +137,7 @@ export class ProjectService {
       techs: project.projectTechs.map((pt) => ({
         tech_id: pt.tech.tech_id,
         name: pt.tech.name,
+        slug: pt.tech.slug,
       })),
     };
   }

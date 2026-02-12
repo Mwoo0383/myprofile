@@ -134,9 +134,10 @@ export class ProjectService {
       deployUrl: project.deployUrl,
       startDate: project.startDate,
       endDate: project.endDate,
-      techs: project.projectTechs.map(
-        (pt) => pt.tech.name,
-      ),
+      techs: project.projectTechs.map((pt) => ({
+        tech_id: pt.tech.tech_id,
+        name: pt.tech.name,
+      })),
     };
   }
 }

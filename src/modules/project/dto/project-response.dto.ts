@@ -6,5 +6,8 @@ export class ProjectResponseDto {
   deployUrl?: string;
   startDate?: Date;
   endDate?: Date;
-  techs: string[];
+  techs: {
+    tech_id: number;
+    name: string;
+  }[];
 }

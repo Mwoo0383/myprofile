@@ -1,8 +1,9 @@
 import { randomUUID } from 'crypto';
 
-(global as any).crypto = {
-  randomUUID,
-};
+if (typeof globalThis.crypto === 'undefined') {
+  (globalThis as any).crypto = { randomUUID };
+}
+
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import "reflect-metadata";
